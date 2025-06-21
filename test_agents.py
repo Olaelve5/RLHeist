@@ -8,6 +8,7 @@ from ray.rllib.env.wrappers.pettingzoo_env import ParallelPettingZooEnv
 from utils.list_models_utils import choose_model
 from utils.ppo_config_utils import get_ppo_config
 import warnings
+import torch
 
 # Ignore deprecation warnings from RLlib
 # clutters output - messy because of new api changes
@@ -39,14 +40,8 @@ def launch_game(checkpoint_path: str):
         act_space_guard=act_space_guard,
     )
 
-    config.env_runners(num_env_runners=0)
-    config.environment(render_env=True)
     algo = config.build_algo()
     algo.restore(checkpoint_path)
-
-    # Get the specific RLModules for each policy
-    thief_module = algo.get_module("thief_policy")
-    guard_module = algo.get_module("guard_policy")
 
     # Create rendering environment
     env = RLHeistEnv(render_mode="human")
@@ -64,23 +59,26 @@ def launch_game(checkpoint_path: str):
                 if event.key == pygame.K_ESCAPE:
                     running = False
 
-        # Get actions for each agent
-        thief_obs_batch = np.array([obs["thief"]])
-        guard_obs_batch = np.array([obs["guard"]])
+        actions = {}
+        for agent_id, agent_obs in obs.items():
 
-        # Get actions from each module using the new API
-        thief_action_dist = thief_module.forward_inference({"obs": thief_obs_batch})
-        guard_action_dist = guard_module.forward_inference({"obs": guard_obs_batch})
+            policy_id = (
+                "thief_policy" if agent_id.startswith("thief") else "guard_policy"
+            )
 
-        # Extract the action from the resulting dictionary
-        thief_action = thief_action_dist['actions'][0]
-        guard_action = guard_action_dist['actions'][0]
+            rl_module = algo.get_module(policy_id)
 
-        # Combine actions into a dictionary for the environment
-        actions = {
-            "thief": thief_action,
-            "guard": guard_action,
-        }
+            obs_tensor = torch.tensor([agent_obs], dtype=torch.float32)
+            obs_batch = {"obs": obs_tensor}
+
+            outputs = rl_module.forward_inference(obs_batch)
+
+            action_dist_class = rl_module.get_inference_action_dist_cls()
+            action_dist = action_dist_class.from_logits(outputs["action_dist_inputs"])
+
+            action_tensor = action_dist.sample()
+
+            actions[agent_id] = action_tensor.item()
 
         # Step environment
         obs, rewards, terminations, truncations, infos = env.step(actions)

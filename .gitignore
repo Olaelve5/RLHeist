@@ -1,2 +1,17 @@
+# Ignore training data and model files
 policies_checkpoints/
 training_results/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# Other
+.DS_Store

@@ -64,7 +64,7 @@ class RLHeistEnv(ParallelEnv):
         # Guard: 0:No-op, 1:Up, 2:Down, 3:Left, 4:Right, 5:Rotate Left, 6: Rotate Right
         # Note:
         self.action_spaces = {"thief": spaces.Discrete(9), "guard": spaces.Discrete(7)}
-        self.max_episode_steps = 2400
+        self.max_episode_steps = 1800 # 30 seconds at 60 FPS
         self.step_counter = 0
 
         # Define the observation space
