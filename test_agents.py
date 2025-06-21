@@ -5,7 +5,7 @@ import ray
 import numpy as np
 from ray.tune.registry import register_env
 from ray.rllib.env.wrappers.pettingzoo_env import ParallelPettingZooEnv
-from utils.list_models_utils import choose_model
+from utils.checkpoint_utils import choose_model
 from utils.ppo_config_utils import get_ppo_config
 import warnings
 import torch

@@ -416,12 +416,11 @@ class RLHeistEnv(ParallelEnv):
         if self.thief_has_gem and not self.thief_has_recieved_gem_reward:
             rewards["thief"] += 4.0
             rewards["guard"] -= 4.0
-            print("💎 Thief caught the gem!")
+            print("💎 Thief took the gem!")
             self.thief_has_recieved_gem_reward = True
 
         if self.step_counter >= self.max_episode_steps:
             rewards["thief"] = -2.0
-            rewards["guard"] = 2.0
             return rewards
 
         # Check if guard comes closer to the thief
