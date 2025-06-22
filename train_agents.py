@@ -84,7 +84,7 @@ def train_agents():
         print(f"  🔴 Thief reward: {thief_reward:.3f}")
         print(f"  🔵 Guard reward: {guard_reward:.3f}")
 
-        save_frequency = 20
+        save_frequency = 25
 
         if (current_iteration) % save_frequency == 0:
             # Create a proper subdirectory for each checkpoint

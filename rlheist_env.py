@@ -7,6 +7,8 @@ from collision_handler import handle_collisions, handle_gem_collision
 from config import Config
 from light_ray import RayCollection
 from utils.walls import wall_lines
+from utils.get_agent_start_pos import get_agent_start_pos
+import random
 
 
 class RLHeistEnv(ParallelEnv):
@@ -64,7 +66,7 @@ class RLHeistEnv(ParallelEnv):
         # Guard: 0:No-op, 1:Up, 2:Down, 3:Left, 4:Right, 5:Rotate Left, 6: Rotate Right
         # Note:
         self.action_spaces = {"thief": spaces.Discrete(9), "guard": spaces.Discrete(7)}
-        self.max_episode_steps = 1800 # 30 seconds at 60 FPS
+        self.max_episode_steps = 1800  # 30 seconds at 60 FPS
         self.step_counter = 0
 
         # Define the observation space
@@ -129,17 +131,15 @@ class RLHeistEnv(ParallelEnv):
 
         self.game_outcome_text = None
 
-        self.thief_pos = Vector2(50, self.config.SCREEN_HEIGHT / 2)
+        self.thief_pos = get_agent_start_pos(self.config, "thief", random_level=0)
         self.last_thief_pos = self.thief_pos.copy()
 
-        self.guard_pos = Vector2(
-            self.config.SCREEN_WIDTH / 2, self.config.SCREEN_HEIGHT / 2 + 150
-        )
+        self.guard_pos = get_agent_start_pos(self.config, "guard", random_level=0)
         self.last_guard_pos = self.guard_pos.copy()
 
         self.thief_vel = Vector2(0, 0)
         self.guard_vel = Vector2(0, 0)
-        self.guard_flashlight_angle = 270
+        self.guard_flashlight_angle = random.randint(0, 360)
         self.thief_sprint_stamina = self.config.AGENT_SPRINT_STAMINA
         self.gem_pos = Vector2(
             self.config.SCREEN_WIDTH / 2, self.config.SCREEN_HEIGHT / 2
@@ -457,6 +457,5 @@ class RLHeistEnv(ParallelEnv):
             )
             if current_smallest_exit_distance < last_smallest_exit_distance:
                 rewards["thief"] += 0.005
-            
 
         return rewards

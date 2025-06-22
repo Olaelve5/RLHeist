@@ -1,3 +1,6 @@
+from pygame import Vector2
+
+
 class Config:
     # Screen dimensions
     SCREEN_WIDTH = 1200
@@ -12,6 +15,24 @@ class Config:
     AGENT_ROTATION_SPEED = 3
     MAX_AGENT_VELOCITY = 4
     MAX_AGENT_SPRINT_VELOCITY = 10
+
+    # Agent Starting Positions Settings
+    THIEF_DEFAULT_START_POS = Vector2(50, SCREEN_HEIGHT / 2)
+    GUARD_DEFAULT_START_POS = Vector2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 100)
+
+    THIEF_RANDOM_START_POSITIONS = [
+        Vector2(50, SCREEN_HEIGHT / 2),
+        Vector2(SCREEN_WIDTH - 50, SCREEN_HEIGHT / 2),
+        Vector2(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 50),
+        Vector2(SCREEN_WIDTH / 2, 50),
+    ]
+
+    GUARD_RANDOM_START_POSITIONS = [
+        Vector2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 100),
+        Vector2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 100),
+        Vector2(SCREEN_WIDTH / 2 + 100, SCREEN_HEIGHT / 2),
+        Vector2(SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2),
+    ]
 
     # Flashlight Settings
     FLASHLIGHT_FOV = 35
