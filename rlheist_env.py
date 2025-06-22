@@ -134,7 +134,7 @@ class RLHeistEnv(ParallelEnv):
         self.thief_pos = get_agent_start_pos(self.config, "thief", random_level=0)
         self.last_thief_pos = self.thief_pos.copy()
 
-        self.guard_pos = get_agent_start_pos(self.config, "guard", random_level=0)
+        self.guard_pos = get_agent_start_pos(self.config, "guard", random_level=1)
         self.last_guard_pos = self.guard_pos.copy()
 
         self.thief_vel = Vector2(0, 0)
@@ -398,24 +398,25 @@ class RLHeistEnv(ParallelEnv):
         rewards = {agent: 0.0 for agent in self.agents}
 
         # Time penalty
-        rewards["thief"] -= 0.005
+        rewards["thief"] -= 0.01
+        rewards["guard"] -= 0.01
 
         if self.thief_is_caught:
-            rewards["thief"] = -10.0
-            rewards["guard"] = 10.0
+            rewards["thief"] = -20.0
+            rewards["guard"] = 20.0
             print("🚨 Thief caught by the guard!")
             return rewards
 
         # Check if the thief escapes with the gem
         if self.thief_has_gem and self.thief_has_escaped:
-            rewards["thief"] = 10.0
-            rewards["guard"] = -10.0
+            rewards["thief"] = 20.0
+            rewards["guard"] = -20.0
             print("🚪 Thief escaped with the gem!")
             return rewards
 
         if self.thief_has_gem and not self.thief_has_recieved_gem_reward:
-            rewards["thief"] += 4.0
-            rewards["guard"] -= 4.0
+            rewards["thief"] += 8.0
+            rewards["guard"] -= 8.0
             print("💎 Thief took the gem!")
             self.thief_has_recieved_gem_reward = True
 
@@ -427,13 +428,13 @@ class RLHeistEnv(ParallelEnv):
         last_distance = self.last_guard_pos.distance_to(self.last_thief_pos)
         current_distance = self.guard_pos.distance_to(self.thief_pos)
         if current_distance < last_distance:
-            rewards["guard"] += 0.005
+            rewards["guard"] += 0.01
 
         # Check if the theif moves closer to the gem
         last_gem_distance = self.last_thief_pos.distance_to(self.last_gem_pos)
         current_gem_distance = self.thief_pos.distance_to(self.gem_pos)
         if (current_gem_distance < last_gem_distance) and not self.thief_has_gem:
-            rewards["thief"] += 0.005
+            rewards["thief"] += 0.01
 
         # Check if the thief moves closer to an exit if they have the gem
         left_exit_location = Vector2(
@@ -456,6 +457,6 @@ class RLHeistEnv(ParallelEnv):
                 self.thief_pos.distance_to(right_exit_location),
             )
             if current_smallest_exit_distance < last_smallest_exit_distance:
-                rewards["thief"] += 0.005
+                rewards["thief"] += 0.01
 
         return rewards
