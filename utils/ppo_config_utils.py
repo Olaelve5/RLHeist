@@ -20,7 +20,7 @@ def get_ppo_config(obs_space_thief, act_space_thief, obs_space_guard, act_space_
         )
         .training(
             lr=2e-4,
-            train_batch_size=8192,
+            train_batch_size=8192, 
             minibatch_size=256,
             num_epochs=8,
             gamma=0.99,
@@ -33,10 +33,6 @@ def get_ppo_config(obs_space_thief, act_space_thief, obs_space_guard, act_space_
             vf_clip_param=10.0,
         )
         .resources(num_gpus=0)
-        .api_stack(
-            enable_rl_module_and_learner=False,
-            enable_env_runner_and_connector_v2=False,
-        )
     )
 
     return config

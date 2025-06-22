@@ -12,7 +12,7 @@ def list_checkpoints():
         return []
     models = []
     for filename in os.listdir(models_dir):
-        if filename.startswith("RLHeist_agents_iteration_"):
+        if filename.startswith("RLHeist_checkpoint_iteration_"):
             model_path = os.path.join(models_dir, filename)
             models.append(
                 {
@@ -57,3 +57,13 @@ def choose_model():
                 print("Invalid choice. Please try again.")
         except ValueError:
             print("Invalid input. Please enter a number.")
+
+
+def get_latest_checkpoint():
+    checkpoints = list_checkpoints()
+    if not checkpoints:
+        print("No checkpoints found.")
+        return None
+    latest_checkpoint = checkpoints[-1]  # Get the last checkpoint in the sorted list
+
+    return latest_checkpoint["path"]

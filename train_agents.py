@@ -7,9 +7,9 @@ import os
 import warnings
 from utils.ppo_config_utils import get_ppo_config
 from utils.custom_logger_creator import custom_logger_creator
+from utils.checkpoint_utils import get_latest_checkpoint
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
-
 
 def env_creator(env_config):
     """Create and return the wrapped environment"""
@@ -48,36 +48,47 @@ def train_agents():
 
     algo = PPO(config=config, logger_creator=custom_logger_creator)
 
+    # Restore from the latest checkpoint if available
+    latest_checkpoint = get_latest_checkpoint()
+    if latest_checkpoint:
+        print(f"🔄 Restoring from checkpoint: {latest_checkpoint}")
+        iteration_number = int(latest_checkpoint.split("iteration_")[-1].split(".")[0])
+        algo.restore(latest_checkpoint)
+    else:
+        iteration_number = 0
+        print("🔄 No checkpoint found, starting fresh training.")
+
     print("🚀 Starting training...")
-    for i in range(300):
-        print(f"\n\n=== Training iteration {i + 1} ===")
+    for i in range(200):
+        current_iteration = iteration_number + i + 1
+
+        print(f"\n\n=== Training iteration {current_iteration} ===")
 
         result = algo.train()
 
-        # ✅ CORRECT - Use these keys from your result structure:
-        episode_reward_mean = result.get("env_runners", {}).get(
-            "episode_reward_mean", 0
-        )
+        # Safely get the env_runners dictionary
+        env_runners_data = result.get("env_runners", {})
 
-        # Individual policy rewards:
-        policy_rewards = result.get("env_runners", {}).get("policy_reward_mean", {})
-        thief_reward = policy_rewards.get("thief_policy", 0)
-        guard_reward = policy_rewards.get("guard_policy", 0)
+        # Extract the metrics using the new paths
+        episode_reward = env_runners_data.get("episode_return_mean", 0)
+        episode_length = env_runners_data.get("episode_len_mean", 0)
 
-        # Episode length:
-        episode_length = result.get("env_runners", {}).get("episode_len_mean", 0)
+        # Get the dictionary of module rewards
+        module_rewards = env_runners_data.get("module_episode_returns_mean", {})
+        thief_reward = module_rewards.get("thief_policy", 0)
+        guard_reward = module_rewards.get("guard_policy", 0)
 
-        print(f"Iter {i + 1}:")
-        print(f"  📊 Overall reward: {episode_reward_mean:.3f}")
+        print(f"Iter {current_iteration}:")
+        print(f"  📊 Overall reward: {episode_reward:.3f}")
         print(f"  📏 Episode length: {episode_length:.1f}")
         print(f"  🔴 Thief reward: {thief_reward:.3f}")
         print(f"  🔵 Guard reward: {guard_reward:.3f}")
 
-        save_frequency = 20
+        save_frequency = 25
 
-        if (i + 1) % save_frequency == 0:
+        if (current_iteration) % save_frequency == 0:
             # Create a proper subdirectory for each checkpoint
-            checkpoint_name = f"RLHeist_checkpoint_iteration_{i + 1:03d}"
+            checkpoint_name = f"RLHeist_checkpoint_iteration_{current_iteration:03d}"
             checkpoint_path = os.path.join(models_dir, checkpoint_name)
 
             checkpoint_result = algo.save(checkpoint_path)
