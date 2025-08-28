@@ -6,7 +6,7 @@ from pygame.math import Vector2
 from collision_handler import handle_collisions, handle_gem_collision
 from config import Config
 from light_ray import RayCollection
-from utils.walls import wall_lines
+from utils.walls import wall_lines_level_1, wall_lines_level_2, wall_lines_level_3
 from utils.get_agent_start_pos import get_agent_start_pos
 import random
 
@@ -45,11 +45,14 @@ class RLHeistEnv(ParallelEnv):
         )
         self.last_gem_pos = self.gem_pos.copy()
 
+        self.map_level = 1  # Default map level (1-3)
+
         self.graphics = Graphics(
             render_mode=render_mode,
             screen_width=self.config.SCREEN_WIDTH,
             screen_height=self.config.SCREEN_HEIGHT,
             agent_radius=self.config.AGENT_RADIUS,
+            map_level=self.map_level,
         )
 
         self.score = {
@@ -131,7 +134,7 @@ class RLHeistEnv(ParallelEnv):
 
         self.game_outcome_text = None
 
-        self.thief_pos = get_agent_start_pos(self.config, "thief", random_level=0)
+        self.thief_pos = get_agent_start_pos(self.config, "thief", random_level=1)
         self.last_thief_pos = self.thief_pos.copy()
 
         self.guard_pos = get_agent_start_pos(self.config, "guard", random_level=1)
@@ -252,6 +255,14 @@ class RLHeistEnv(ParallelEnv):
         if self.thief_has_gem:
             self.gem_pos = self.thief_pos  # Move gem to thief's position
 
+        wall_lines = (
+            wall_lines_level_1
+            if self.map_level == 1
+            else wall_lines_level_2
+            if self.map_level == 2
+            else wall_lines_level_3
+        )
+
         # Update the flashlight rays for the guard
         self.flashlight_rays.update(
             new_origin=self.guard_pos,
@@ -279,10 +290,18 @@ class RLHeistEnv(ParallelEnv):
 
         # Handle collisions with walls
         self.thief_pos = handle_collisions(
-            self.thief_pos, self.config.AGENT_RADIUS, self.thief_has_gem, is_guard=False
+            self.thief_pos,
+            self.config.AGENT_RADIUS,
+            self.thief_has_gem,
+            is_guard=False,
+            map_level=self.map_level,
         )
         self.guard_pos = handle_collisions(
-            self.guard_pos, self.config.AGENT_RADIUS, self.thief_has_gem, is_guard=True
+            self.guard_pos,
+            self.config.AGENT_RADIUS,
+            self.thief_has_gem,
+            is_guard=True,
+            map_level=self.map_level,
         )
 
         # Calculate rewards
@@ -402,7 +421,7 @@ class RLHeistEnv(ParallelEnv):
         rewards["guard"] -= 0.01
 
         if self.thief_is_caught:
-            rewards["thief"] = -20.0
+            rewards["thief"] = -10.0
             rewards["guard"] = 20.0
             print("🚨 Thief caught by the guard!")
             return rewards
@@ -415,13 +434,13 @@ class RLHeistEnv(ParallelEnv):
             return rewards
 
         if self.thief_has_gem and not self.thief_has_recieved_gem_reward:
-            rewards["thief"] += 8.0
-            rewards["guard"] -= 8.0
+            rewards["thief"] += 10.0
+            rewards["guard"] -= 10.0
             print("💎 Thief took the gem!")
             self.thief_has_recieved_gem_reward = True
 
         if self.step_counter >= self.max_episode_steps:
-            rewards["thief"] = -2.0
+            rewards["thief"] = -5.0
             return rewards
 
         # Check if guard comes closer to the thief

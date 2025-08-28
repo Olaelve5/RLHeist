@@ -36,10 +36,10 @@ class Config:
 
     # Flashlight Settings
     FLASHLIGHT_FOV = 35
-    FLASHLIGHT_DISTANCE = 200
+    FLASHLIGHT_DISTANCE = 120
 
     # Wall Settings
     WALL_WIDTH = 15
     DOOR_WIDTH = 50
-    CORRIDOR_WIDTH = 100
-    MIDDLE_SQUARE_SIZE = 200
+    CORRIDOR_WIDTH = 170
+    MIDDLE_SQUARE_SIZE = 300

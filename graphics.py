@@ -1,6 +1,12 @@
 import pygame
 from config import Config
-from utils.walls import walls, gem_circle, wall_lines
+from utils.walls import (
+    walls_level_1,
+    gem_circle,
+    walls_level_2,
+    walls_level_3,
+    wall_lines_level_3,
+)
 from light_ray import RayCollection
 
 
@@ -11,6 +17,7 @@ class Graphics:
         screen_width=1200,
         screen_height=1000,
         agent_radius=40,
+        map_level=0,
     ):
         pygame.init()
         self.render_mode = render_mode
@@ -23,6 +30,8 @@ class Graphics:
             pygame.display.set_caption("RL Heist")
 
         self.agent_radius = agent_radius
+
+        self.map_level = map_level
 
         # --- Define Colors ---
         self.WHITE = (255, 255, 255)
@@ -109,6 +118,15 @@ class Graphics:
         pygame.display.flip()
 
     def draw_walls(self):
+        walls = []
+
+        if self.map_level == 1:
+            walls = walls_level_1
+        elif self.map_level == 2:
+            walls = walls_level_2
+        elif self.map_level == 3:
+            walls = walls_level_3
+
         for wall in walls:
             pygame.draw.rect(
                 self.screen,
@@ -178,7 +196,7 @@ class Graphics:
 
     def draw_wall_lines(self):
         """Draw the wall lines on the screen."""
-        for line in wall_lines:
+        for line in wall_lines_level_3:
             pygame.draw.line(
                 self.screen,
                 self.WHITE,

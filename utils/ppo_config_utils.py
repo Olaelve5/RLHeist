@@ -19,15 +19,16 @@ def get_ppo_config(obs_space_thief, act_space_thief, obs_space_guard, act_space_
             policies_to_train=["thief_policy", "guard_policy"],
         )
         .training(
-            lr=2e-4,
-            train_batch_size=8192, 
+            lr=1e-4,
+            train_batch_size=8192 * 2,
             minibatch_size=256,
-            num_epochs=8,
+            num_epochs=4,
             gamma=0.99,
             model={
                 "fcnet_hiddens": [256, 256],
                 "fcnet_activation": "relu",
             },
+            lambda_=0.95,
             entropy_coeff=0.001,
             clip_param=0.2,
             vf_clip_param=10.0,
