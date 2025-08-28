@@ -59,13 +59,13 @@ def train_agents():
         print("🔄 No checkpoint found, starting fresh training.")
 
     print("🚀 Starting training...")
-    for i in range(200):
+    for i in range(300):
         current_iteration = iteration_number + i + 1
 
         print(f"\n\n=== Training iteration {current_iteration} ===")
 
         result = algo.train()
-
+    
         # Safely get the env_runners dictionary
         env_runners_data = result.get("env_runners", {})
 

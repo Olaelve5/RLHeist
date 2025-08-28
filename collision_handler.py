@@ -1,12 +1,22 @@
-from utils.walls import walls, gem_circle
+from utils.walls import walls_level_1, gem_circle, walls_level_2, walls_level_3
 from config import Config
 from pygame.math import Vector2
 from light_ray import Ray
 
 
-def handle_collisions(agent_pos, agent_radius, thief_has_gem=False, is_guard=False):
+def handle_collisions(
+    agent_pos, agent_radius, thief_has_gem=False, is_guard=False, map_level=1
+):
 
     current_pos = Vector2(agent_pos.x, agent_pos.y)
+
+    walls = []
+    if map_level == 1:
+        walls = walls_level_1
+    elif map_level == 2:
+        walls = walls_level_2
+    elif map_level == 3:
+        walls = walls_level_3
 
     for wall in walls:
         rect = wall["rect"]

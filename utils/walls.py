@@ -1,7 +1,7 @@
 from config import Config
 from math import cos, sin
 
-walls = [
+outer_walls = [
     {
         "rect": (0, 0, Config.SCREEN_WIDTH, Config.WALL_WIDTH),  # Top wall
     },
@@ -45,20 +45,14 @@ walls = [
             Config.WALL_WIDTH,
         ),  # Bottom wall
     },
+]
+
+walls_level_1 = outer_walls
+
+walls_level_2 = outer_walls + [
     {
         "rect": (
-            Config.WALL_WIDTH + Config.CORRIDOR_WIDTH,
-            Config.WALL_WIDTH + Config.CORRIDOR_WIDTH,
-            Config.SCREEN_WIDTH // 2 - Config.CORRIDOR_WIDTH * 1.5 - Config.WALL_WIDTH,
-            Config.SCREEN_HEIGHT // 2
-            - Config.WALL_WIDTH
-            - Config.CORRIDOR_WIDTH * 1.5
-            - Config.MIDDLE_SQUARE_SIZE / 2,
-        ),  # Internal top left wall - top
-    },
-    {
-        "rect": (
-            Config.WALL_WIDTH + Config.CORRIDOR_WIDTH,
+            Config.WALL_WIDTH + Config.CORRIDOR_WIDTH * 1.5,
             Config.SCREEN_HEIGHT // 2
             - Config.MIDDLE_SQUARE_SIZE / 2
             - Config.CORRIDOR_WIDTH * 0.5,
@@ -67,63 +61,63 @@ walls = [
             - Config.WALL_WIDTH
             - Config.MIDDLE_SQUARE_SIZE / 2,
             Config.MIDDLE_SQUARE_SIZE / 2,
-        ),  # Internal top left wall - bottom
+        ),  # Internal top wall
     },
     {
         "rect": (
-            Config.SCREEN_WIDTH // 2 + Config.CORRIDOR_WIDTH / 2,
-            Config.WALL_WIDTH + Config.CORRIDOR_WIDTH,
-            Config.SCREEN_WIDTH // 2 - Config.CORRIDOR_WIDTH * 1.5 - Config.WALL_WIDTH,
-            Config.SCREEN_HEIGHT // 2
-            - Config.WALL_WIDTH
-            - Config.CORRIDOR_WIDTH * 1.5
-            - Config.MIDDLE_SQUARE_SIZE / 2,
-        ),  # Internal top right wall - top
-    },
-    {
-        "rect": (
-            Config.SCREEN_WIDTH // 2
-            + Config.MIDDLE_SQUARE_SIZE / 2
-            + Config.CORRIDOR_WIDTH * 0.5,
-            Config.SCREEN_HEIGHT // 2
-            - Config.MIDDLE_SQUARE_SIZE / 2
-            - Config.CORRIDOR_WIDTH * 0.5,
-            Config.SCREEN_WIDTH // 2
-            - Config.CORRIDOR_WIDTH * 1.5
-            - Config.WALL_WIDTH
-            - Config.MIDDLE_SQUARE_SIZE / 2,
-            Config.MIDDLE_SQUARE_SIZE / 2,
-        ),  # Internal top right wall - bottom
-    },
-    {
-        "rect": (
-            Config.WALL_WIDTH + Config.CORRIDOR_WIDTH,
+            Config.SCREEN_WIDTH // 2 + Config.MIDDLE_SQUARE_SIZE / 2,
             Config.SCREEN_HEIGHT // 2 + Config.CORRIDOR_WIDTH * 0.5,
             Config.SCREEN_WIDTH // 2
             - Config.CORRIDOR_WIDTH * 1.5
             - Config.WALL_WIDTH
             - Config.MIDDLE_SQUARE_SIZE / 2,
             Config.MIDDLE_SQUARE_SIZE / 2,
-        ),  # Internal bottom left wall - top
+        ),  # Internal bottom wall
     },
+]
+
+
+walls_level_3 = outer_walls + [
     {
         "rect": (
-            Config.WALL_WIDTH + Config.CORRIDOR_WIDTH,
+            Config.WALL_WIDTH + Config.CORRIDOR_WIDTH * 1.5,
             Config.SCREEN_HEIGHT // 2
-            + Config.CORRIDOR_WIDTH * 0.5
-            + Config.MIDDLE_SQUARE_SIZE / 2,
-            Config.SCREEN_WIDTH // 2 - Config.CORRIDOR_WIDTH * 1.5 - Config.WALL_WIDTH,
-            Config.SCREEN_HEIGHT // 2
-            - Config.WALL_WIDTH
-            - Config.CORRIDOR_WIDTH * 1.5
-            - Config.MIDDLE_SQUARE_SIZE / 2,
-        ),  # Internal bottom left wall - bottom
-    },
-    {
-        "rect": (
+            - Config.MIDDLE_SQUARE_SIZE / 2
+            - Config.CORRIDOR_WIDTH * 0.5,
             Config.SCREEN_WIDTH // 2
-            + Config.MIDDLE_SQUARE_SIZE / 2
-            + Config.CORRIDOR_WIDTH * 0.5,
+            - Config.CORRIDOR_WIDTH * 1.5
+            - Config.WALL_WIDTH
+            - Config.MIDDLE_SQUARE_SIZE / 2,
+            Config.MIDDLE_SQUARE_SIZE / 2,
+        ),  # Internal top left wall
+    },
+    {
+        "rect": (
+            Config.SCREEN_WIDTH // 2 + Config.MIDDLE_SQUARE_SIZE / 2,
+            Config.SCREEN_HEIGHT // 2
+            - Config.MIDDLE_SQUARE_SIZE / 2
+            - Config.CORRIDOR_WIDTH * 0.5,
+            Config.SCREEN_WIDTH // 2
+            - Config.CORRIDOR_WIDTH * 1.5
+            - Config.WALL_WIDTH
+            - Config.MIDDLE_SQUARE_SIZE / 2,
+            Config.MIDDLE_SQUARE_SIZE / 2,
+        ),  # Internal top right wall
+    },
+    {
+        "rect": (
+            Config.WALL_WIDTH + Config.CORRIDOR_WIDTH * 1.5,
+            Config.SCREEN_HEIGHT // 2 + Config.CORRIDOR_WIDTH * 0.5,
+            Config.SCREEN_WIDTH // 2
+            - Config.CORRIDOR_WIDTH * 1.5
+            - Config.WALL_WIDTH
+            - Config.MIDDLE_SQUARE_SIZE / 2,
+            Config.MIDDLE_SQUARE_SIZE / 2,
+        ),  # Internal bottom left wall
+    },
+    {
+        "rect": (
+            Config.SCREEN_WIDTH // 2 + Config.MIDDLE_SQUARE_SIZE / 2,
             Config.SCREEN_HEIGHT // 2 + Config.CORRIDOR_WIDTH * 0.5,
             Config.SCREEN_WIDTH // 2
             - Config.CORRIDOR_WIDTH * 1.5
@@ -132,25 +126,21 @@ walls = [
             Config.MIDDLE_SQUARE_SIZE / 2,
         ),  # Internal bottom right wall - top
     },
-    {
-        "rect": (
-            Config.SCREEN_WIDTH // 2 + Config.CORRIDOR_WIDTH / 2,
-            Config.SCREEN_HEIGHT // 2
-            + Config.CORRIDOR_WIDTH * 0.5
-            + Config.MIDDLE_SQUARE_SIZE / 2,
-            Config.SCREEN_WIDTH // 2 - Config.CORRIDOR_WIDTH * 1.5 - Config.WALL_WIDTH,
-            Config.SCREEN_HEIGHT // 2
-            - Config.WALL_WIDTH
-            - Config.CORRIDOR_WIDTH * 1.5
-            - Config.MIDDLE_SQUARE_SIZE / 2,
-        ),  # Internal bottom right wall - bottom
-    },
 ]
 
 
-def create_wall_lines():
+def create_wall_lines(level=1):
     """Create line segments for wall outlines"""
     lines = []
+    walls = []
+
+    if level == 1:
+        walls = walls_level_1
+    elif level == 2:
+        walls = walls_level_2
+    elif level == 3:
+        walls = walls_level_3
+
 
     # For each wall rectangle, create 4 line segments (the outline)
     for wall in walls:
@@ -166,7 +156,7 @@ def create_wall_lines():
                 ((left, top + height), (left, top)),  # Left edge
             ]
         )
-    
+
     # Add the gem circle as a line segment
     gem_radius = 30  # Radius of the gem circle
     gem_center = (Config.SCREEN_WIDTH // 2, Config.SCREEN_HEIGHT // 2)
@@ -189,7 +179,9 @@ def create_wall_lines():
 
 
 # Generate the wall lines
-wall_lines = create_wall_lines()
+wall_lines_level_1 = create_wall_lines(level=1)
+wall_lines_level_2 = create_wall_lines(level=2)
+wall_lines_level_3 = create_wall_lines(level=3)
 
 
 gem_circle = (
